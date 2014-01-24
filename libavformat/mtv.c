@@ -152,8 +152,9 @@ static int mtv_read_header(AVFormatContext *s)
     mtv->full_segment_size =
         audio_subsegments * (MTV_AUDIO_PADDING_SIZE + MTV_ASUBCHUNK_DATA_SIZE) +
         mtv->img_segment_size;
-    mtv->video_fps         = (mtv->audio_br / 4) / audio_subsegments;
+    mtv->video_fps         = (mtv->audio_br * mtv->audio_br) / ((MTV_AUDIO_PADDING_SIZE + MTV_ASUBCHUNK_DATA_SIZE) * audio_subsegments);
 
+    av_log (s, AV_LOG_WARNING, "abr: %d, fps: %d, audio_subsegments:%d\n", mtv->audio_br, mtv->video_fps,  audio_subsegments);
     // FIXME Add sanity check here
 
     // all systems go! init decoders
