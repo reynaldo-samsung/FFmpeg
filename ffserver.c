@@ -3612,8 +3612,8 @@ static void extract_mpeg4_header(AVFormatContext *infile)
     mpeg4_count = 0;
     for(i=0;i<infile->nb_streams;i++) {
         st = infile->streams[i];
-        if (st->codec->codec_id == AV_CODEC_ID_MPEG4 &&
-            st->codec->extradata_size == 0) {
+        if (st->codecpar->codec_id == AV_CODEC_ID_MPEG4 &&
+            st->codecpar->extradata_size == 0) {
             mpeg4_count++;
         }
     }
@@ -3626,9 +3626,9 @@ static void extract_mpeg4_header(AVFormatContext *infile)
         if (av_read_frame(infile, &pkt) < 0)
             break;
         st = infile->streams[pkt.stream_index];
-        if (st->codec->codec_id == AV_CODEC_ID_MPEG4 &&
-            st->codec->extradata_size == 0) {
-            av_freep(&st->codec->extradata);
+        if (st->codecpar->codec_id == AV_CODEC_ID_MPEG4 &&
+            st->codecpar->extradata_size == 0) {
+            av_freep(&st->codecpar->extradata);
             /* fill extradata with the header */
             /* XXX: we make hard suppositions here ! */
             p = pkt.data;
@@ -3637,9 +3637,9 @@ static void extract_mpeg4_header(AVFormatContext *infile)
                 if (p[0] == 0x00 && p[1] == 0x00 &&
                     p[2] == 0x01 && p[3] == 0xb6) {
                     size = p - pkt.data;
-                    st->codec->extradata = av_mallocz(size + AV_INPUT_BUFFER_PADDING_SIZE);
-                    st->codec->extradata_size = size;
-                    memcpy(st->codec->extradata, pkt.data, size);
+                    st->codecpar->extradata = av_mallocz(size + AV_INPUT_BUFFER_PADDING_SIZE);
+                    st->codecpar->extradata_size = size;
+                    memcpy(st->codecpar->extradata, pkt.data, size);
                     break;
                 }
                 p++;
