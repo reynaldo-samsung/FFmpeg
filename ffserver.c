@@ -3548,12 +3548,12 @@ static AVStream *add_av_stream1(FFServerStream *stream,
 static int add_av_stream(FFServerStream *feed, AVStream *st)
 {
     AVStream *fst;
-    AVCodecContext *av, *av1;
+    AVCodecParameters *av, *av1;
     int i;
 
-    av = st->codec;
+    av = st->codecpar;
     for(i=0;i<feed->nb_streams;i++) {
-        av1 = feed->streams[i]->codec;
+        av1 = feed->streams[i]->codecpar;
         if (av1->codec_id == av->codec_id &&
             av1->codec_type == av->codec_type &&
             av1->bit_rate == av->bit_rate) {
@@ -3565,11 +3565,12 @@ static int add_av_stream(FFServerStream *feed, AVStream *st)
                     return i;
                 break;
             case AVMEDIA_TYPE_VIDEO:
+                /* FIXME: Check whether replicating the previous check for
+                 * matching av->gop_size is necessary */
                 if (av1->width == av->width &&
                     av1->height == av->height &&
-                    av1->time_base.den == av->time_base.den &&
-                    av1->time_base.num == av->time_base.num &&
-                    av1->gop_size == av->gop_size)
+                    !av_cmp_q(av_stream_get_codec_timebase(feed->streams[i]),
+                              av_stream_get_codec_timebase(st)))
                     return i;
                 break;
             default:
